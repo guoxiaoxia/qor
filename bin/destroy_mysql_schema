@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+const mysql = require('mysql');
+const walk = require('klaw-sync');
+const path = require('path');
+const printf = require('printf');
+const ObjectRouter = require('../src/object/router');
+const RelationRouter = require('../src/relation/router');
+
+if (process.argv.length != 4) {
+	console.error('usage: destroy_mysql_schema <source_path> <type:object|relation>');
+	process.exit(-1);
+}
+
+const SOURCE_PATH = path.resolve(process.argv[2]);
+const TYPE = process.argv[3].toLowerCase();
+
+walk(SOURCE_PATH, {
+	nodir: true,
+	filter: item => item.path.endsWith('router.js')
+}).forEach(async (item) => {
+	try {
+		const module = path.dirname(item.path).replace(SOURCE_PATH + '/', '').replace(/\//g, '.');
+		switch(TYPE) {
+			case 'object':
+				await destroy_object_mysql_schema(module, path.dirname(item.path));
+				break;
+			case 'relation':
+				await destroy_relation_mysql_schema(module, path.dirname(item.path));
+				break;
+			default:
+				console.error('unknown type ' + TYPE);
+				process.exit(-1);
+				break;
+		}
+	}
+	catch(err) {
+		console.error(err);
+		process.exit(-1);
+	}
+});
+
+async function destroy_object_mysql_schema(module, path) {
+	const router = new ObjectRouter(module, `${path}/router`);
+	for (let idx = 0; idx < router.persistences.length; ++idx) {
+		const persistence = router.persistences[idx];
+		if (persistence.media !== 'mysql') {
+			continue;
+		}
+
+		let sql = generate_object_sql(module, persistence, idx);
+		await execute_sql(sql, persistence);
+	}
+}
+
+function generate_object_sql(module, persistence, idx) {
+	const table = `${persistence.database}.o_${module.replace(/\./g, '_')}_${printf('%03d', idx)}`;
+	return `DROP TABLE IF EXISTS ${table}`;
+}
+
+async function destroy_relation_mysql_schema(module, path) {
+	const router = new RelationRouter(module, `${path}/router`);
+	for (let idx = 0; idx < router.persistences.length; ++idx) {
+		const persistence = router.persistences[idx];
+		if (persistence.media !== 'mysql') {
+			continue;
+		}
+
+		let sql = generate_relation_sql(module, persistence, idx);
+		await execute_sql(sql, persistence);
+	}	
+}
+
+function generate_relation_sql(module, persistence, idx) {
+	const table = `${persistence.database}.r_${module.replace(/\./g, '_')}_${printf('%03d', idx)}`;
+	return `DROP TABLE IF EXISTS ${table}`;
+}
+
+async function execute_sql(sql, connParam) {
+	let connection = mysql.createConnection({
+		host : connParam.host,
+		port : connParam.port,
+		user : connParam.user,
+		password : connParam.password
+	});
+
+	return await new Promise((resolve, reject) => {
+		connection.connect();
+		connection.query(sql, (err) => {
+			connection.end();
+			if (err) {
+				reject(err);
+				return;
+			}
+			resolve();
+		});
+	});
+}

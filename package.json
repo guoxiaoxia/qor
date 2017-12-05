@@ -1,0 +1,53 @@
+{
+  "_args": [
+    [
+      "qor@1.0.12",
+      "/Users/sophia/Documents/Projects/Node/my/tmp/tmp-js"
+    ]
+  ],
+  "_from": "qor@1.0.12",
+  "_id": "qor@1.0.12",
+  "_inBundle": false,
+  "_integrity": "sha512-YBBJjlRrvKMBhwLwCk3jMp0X7ZwJhSLbEuhewIHyzOlrV4opEebs/f5E5PhuFzq9ZSKsA8dZjBPxrcxg/LuMlA==",
+  "_location": "/qor",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "qor@1.0.12",
+    "name": "qor",
+    "escapedName": "qor",
+    "rawSpec": "1.0.12",
+    "saveSpec": null,
+    "fetchSpec": "1.0.12"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/qor/-/qor-1.0.12.tgz",
+  "_spec": "1.0.12",
+  "_where": "/Users/sophia/Documents/Projects/Node/my/tmp/tmp-js",
+  "author": {
+    "name": "ray"
+  },
+  "bin": {
+    "qor_build_mysql_schema": "./bin/build_mysql_schema",
+    "qor_destroy_mysql_schema": "./bin/destroy_mysql_schema"
+  },
+  "dependencies": {
+    "ajv": "*",
+    "ajv-keywords": "*",
+    "klaw-sync": "*",
+    "memcached": "*",
+    "mysql": "*",
+    "printf": "*"
+  },
+  "description": "",
+  "license": "ISC",
+  "main": "index.js",
+  "name": "qor",
+  "scripts": {
+    "test": "mocha"
+  },
+  "version": "1.0.12"
+}
