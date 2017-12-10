@@ -65,4 +65,4 @@ module.exports = class {
 			throw new Error(`failed to validate relation(${JSON.stringify(relation)}) against schema(${JSON.stringify(this._schema.relation)})\n${ajv.errorsText(this._validateRelation.errors)}`);
 		}
 	}
-}
+};
